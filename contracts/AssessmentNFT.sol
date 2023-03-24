@@ -4,13 +4,17 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-
-// import "hardhat/console.sol";
+import {BondingCurve} from "./BondingCurve.sol";
 
 contract AssessmentNFT is ERC1155Pausable, Ownable {
     using Strings for uint256;
+    using BondingCurve for BondingCurve.Curve;
 
     string private _baseURI;
+    uint256 public reserveBalance;
+    uint256 public totalSupply;
+
+    BondingCurve.Curve public curve;
 
     /**
      * @dev Emitted when base URI set.
@@ -18,6 +22,14 @@ contract AssessmentNFT is ERC1155Pausable, Ownable {
     event BaseURI(string value);
 
     constructor(string memory baseURI) ERC1155(baseURI) {
+    curve = BondingCurve.Curve({
+    lastUpdate: 0,
+    spotPrice: 0,
+    curveRate: 0.0001 ether,
+    decayRate: 0.00005 ether,
+    maxPrice: 0.5 ether,
+    minPrice: 0.001 ether
+        });
     }
 
     /**
@@ -74,69 +86,78 @@ contract AssessmentNFT is ERC1155Pausable, Ownable {
      * Requirements:
      * - the caller must have the owner.
      */
-    function mint(
-        address to,
+    function mint(uint256 id, uint256 amount) external payable {
+        require(msg.value > 0, "ERC1155: Must send ether to buy tokens.");
+
+        (uint128 newSpotPrice, uint256 totalCost) = curve.getBuyInfo(amount);
+        require(msg.value >= totalCost, "ERC1155: Insufficient ETH sent for mint");
+
+        curve.spotPrice = newSpotPrice;
+        curve.lastUpdate = block.timestamp;
+
+        // refund any extra ETH sent
+        if (msg.value > totalCost) {
+            payable(msg.sender).transfer(msg.value - totalCost);
+        }
+
+        _mint(_msgSender(), id, amount, new bytes(0));
+    }
+
+    function burn(
         uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) external onlyOwner {
-        _mint(to, id, amount, data);
+        uint256 amount
+    ) external {
+        _burn(_msgSender(), id, amount);
+    }
+
+    function burnBatch(
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) external {
+        _burnBatch(_msgSender(), ids, amounts);
+    }
+
+    function burn(
+        address account,
+        uint256 id,
+        uint256 amount
+    ) external {
+        require(
+            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
+
+        _burn(account, id, amount);
+    }
+
+    function burnBatch(
+        address account,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) external {
+        require(
+            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
+
+        _burnBatch(account, ids, amounts);
     }
 
     /**
-     * @dev Batch operation of mint.
-     * See {ERC1155-_mintBatch}.
-     * Requirements:
-     * - the caller must have the owner.
+     * @notice get the current price for mint.
+     * @return newSpotPrice current price for mint
      */
-    function mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) external onlyOwner {
-        _mintBatch(to, ids, amounts, data);
+    function getCurrentMintPrice() external view returns (uint128 newSpotPrice) {
+        (newSpotPrice, ) = curve.getBuyInfo(1);
     }
 
-    function burn(
-        uint256 id,
-        uint256 value
-    ) external {
-        _burn(_msgSender(), id, value);
+    /**
+     * @notice get the cost for mint.
+     * @param amount the number of tokens to purchase
+     * @return totalCost the amount of purchase tokens to purchase the items
+     */
+    function getMintCost(uint256 amount) external view returns (uint256 totalCost) {
+        (, totalCost) = curve.getBuyInfo(amount);
     }
-
-    function burnBatch(
-        uint256[] memory ids,
-        uint256[] memory values
-    ) external {
-        _burnBatch(_msgSender(), ids, values);
-    }
-
-    function burn(
-        address account,
-        uint256 id,
-        uint256 value
-    ) external {
-        require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
-            "ERC1155: caller is not token owner or approved"
-        );
-
-        _burn(account, id, value);
-    }
-    function burnBatch(
-        address account,
-        uint256[] memory ids,
-        uint256[] memory values
-    ) external {
-        require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
-            "ERC1155: caller is not token owner or approved"
-        );
-
-        _burnBatch(account, ids, values);
-    }
-
-    // TODO: Bonding Curve
 }
 
