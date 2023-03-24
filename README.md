@@ -1,4 +1,4 @@
-# Sukuri Test ERC-1155 Project
+# Sukuri ERC-1155 Bonding Curve 
 
 Create an ERC-1155 NFT using OpenZeppelin's ERC-1155 and other libraries.
 https://gist.github.com/M4cs/b57fb97a9c9771feff433811e4755674
@@ -18,16 +18,18 @@ It should adhere to the following requirements:
 - Implements functionality to allow the owner to set a base URI for metadata
 - Implements a mechanism to pause/resume the minting process by the owner
 - Adds a getter for the current minting price
-- Implements a way for users to burn tokens from a user's own account. Should emit an event Burn(from, tokenId)
+- Implements a way for users to burn tokens from a user's own account.
 - (Optional)
   - Implements a way to stake ERC20 tokens to earn NFTs as rewards
   - Implements a function to allow users to set an approved operator to manage their NFTs on their behalf
 
-Try running some of the following tasks:
+Try running some of the following tasks to test or deploy:
 
 ```shell
+# test
 npx hardhat test
 REPORT_GAS=true npx hardhat test
-npx hardhat node
+
+# deploy
 npx hardhat run scripts/deploy.ts
 ```
