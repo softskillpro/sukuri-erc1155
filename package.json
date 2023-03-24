@@ -2,6 +2,12 @@
   "name": "sukuri-erc1155",
   "version": "1.0.0",
   "description": "Test 1155 project for Sukuri",
+  "scripts": {
+    "prettier": "yarn prettier:ts && yarn prettier:sol",
+    "prettier:js": "prettier --write \"{scripts,tasks,test}/**/*.js\"",
+    "prettier:ts": "prettier --write \"{scripts,tasks,test}/**/*.ts\"",
+    "prettier:sol": "prettier --write contracts/**/*.sol"
+  },
   "repository": "https://softskillpro@github.com/softskillpro/sukuri-erc1155.git",
   "author": "softskillpro <softskill.pro20@gmail.com>",
   "license": "MIT",
@@ -22,6 +28,8 @@
     "ethers": "^5.4.7",
     "hardhat": "^2.13.0",
     "hardhat-gas-reporter": "^1.0.8",
+    "prettier": "^2.8.6",
+    "prettier-plugin-solidity": "^1.1.3",
     "solidity-coverage": "^0.8.0",
     "ts-node": ">=8.0.0",
     "typechain": "^8.1.0",

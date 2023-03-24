@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import { FixedPointMathLib } from "solmate/src/utils/FixedPointMathLib.sol";
+import {FixedPointMathLib} from "solmate/src/utils/FixedPointMathLib.sol";
 
 /// @dev Linear bonding curve. Modified version of https://www.paradigm.xyz/2022/08/vrgda
 library BondingCurve {
@@ -28,17 +28,14 @@ library BondingCurve {
     /// @param amount the number of items to purchase
     /// @return newSpotPrice the new spot price after the purchase
     /// @return totalCost the amount of payment token to send to purchase the items
-    function getBuyInfo(
-        Curve memory curve,
-        uint256 amount
-    ) internal view returns (uint128 newSpotPrice, uint256 totalCost) {
+    function getBuyInfo(Curve memory curve, uint256 amount) internal view returns (uint128 newSpotPrice, uint256 totalCost) {
         if (curve.curveRate == 0) {
             return (curve.spotPrice, curve.spotPrice * amount);
         }
 
         uint256 decay;
         if (curve.lastUpdate != 0) {
-            decay = curve.decayRate * (block.timestamp - curve.lastUpdate) / 1 hours;
+            decay = (curve.decayRate * (block.timestamp - curve.lastUpdate)) / 1 hours;
         }
 
         // For a linear curve, the spot price increases by delta for each item bought, and decreases for each day since the last update.

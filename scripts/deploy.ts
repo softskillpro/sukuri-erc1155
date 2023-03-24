@@ -5,9 +5,7 @@ async function main() {
   const assessmentNFT = await AssessmentNFT.deploy("https://github.com/");
   await assessmentNFT.deployed();
 
-  console.log(
-    `AssessmentNFT deployed to ${assessmentNFT.address}`
-  );
+  console.log(`AssessmentNFT deployed to ${assessmentNFT.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

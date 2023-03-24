@@ -22,13 +22,13 @@ contract AssessmentNFT is ERC1155Pausable, Ownable {
     event BaseURI(string value);
 
     constructor(string memory baseURI) ERC1155(baseURI) {
-    curve = BondingCurve.Curve({
-    lastUpdate: 0,
-    spotPrice: 0,
-    curveRate: 0.0001 ether,
-    decayRate: 0.00005 ether,
-    maxPrice: 0.5 ether,
-    minPrice: 0.001 ether
+        curve = BondingCurve.Curve({
+            lastUpdate: 0,
+            spotPrice: 0,
+            curveRate: 0.0001 ether,
+            decayRate: 0.00005 ether,
+            maxPrice: 0.5 ether,
+            minPrice: 0.001 ether
         });
     }
 
@@ -103,42 +103,22 @@ contract AssessmentNFT is ERC1155Pausable, Ownable {
         _mint(_msgSender(), id, amount, new bytes(0));
     }
 
-    function burn(
-        uint256 id,
-        uint256 amount
-    ) external {
+    function burn(uint256 id, uint256 amount) external {
         _burn(_msgSender(), id, amount);
     }
 
-    function burnBatch(
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) external {
+    function burnBatch(uint256[] memory ids, uint256[] memory amounts) external {
         _burnBatch(_msgSender(), ids, amounts);
     }
 
-    function burn(
-        address account,
-        uint256 id,
-        uint256 amount
-    ) external {
-        require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
-            "ERC1155: caller is not token owner or approved"
-        );
+    function burn(address account, uint256 id, uint256 amount) external {
+        require(account == _msgSender() || isApprovedForAll(account, _msgSender()), "ERC1155: caller is not token owner or approved");
 
         _burn(account, id, amount);
     }
 
-    function burnBatch(
-        address account,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) external {
-        require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
-            "ERC1155: caller is not token owner or approved"
-        );
+    function burnBatch(address account, uint256[] memory ids, uint256[] memory amounts) external {
+        require(account == _msgSender() || isApprovedForAll(account, _msgSender()), "ERC1155: caller is not token owner or approved");
 
         _burnBatch(account, ids, amounts);
     }
@@ -160,4 +140,3 @@ contract AssessmentNFT is ERC1155Pausable, Ownable {
         (, totalCost) = curve.getBuyInfo(amount);
     }
 }
-
